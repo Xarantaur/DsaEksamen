@@ -1,0 +1,195 @@
+#gamefield {
+  border: 1px solid chartreuse;
+  width: fit-content;
+  display: grid;
+}
+
+#background {
+  grid-area: 1/1;
+  /*  width: calc(16 * 32px);
+    height: calc(16 * 32px);
+    background-color: grey; */
+  display: grid;
+  grid-template-columns: repeat(var(--GRID_WIDTH), max-content);
+}
+#background .tile {
+  width: var(--TILE_SIZE);
+  aspect-ratio: 1 / 1;
+
+  background-repeat: no-repeat;
+  background-size: 100%;
+  image-rendering: pixelated;
+}
+
+.tile.path {
+  background-image: url("images/tiles/path.png");
+}
+.tile.grass {
+  background-image: url("images/tiles/grass.png");
+}
+.tile.water {
+  background-image: url("images/tiles/water.png");
+}
+.tile.wall {
+  background-image: url("images/tiles/wall.png");
+}
+.tile.floor {
+  background-image: url("images/tiles/floor_planks.png");
+}
+.tile.flowers {
+  background-image: url("images/tiles/flowers.png");
+}
+.tile.cliff {
+  background-image: url("images/tiles/cliff.png");
+}
+
+#items {
+  grid-area: 1/1;
+}
+#characters {
+  grid-area: 1/1;
+}
+#player {
+  width: 30px;
+  aspect-ratio: 16 / 20;
+  background-image: url("images/characters/Character\ 11.png");
+  background-size: 400% 400%;
+  image-rendering: pixelated;
+}
+#player.animate {
+  animation-duration: 0.6s;
+  animation-timing-function: steps(4);
+  animation-iteration-count: infinite;
+}
+#player.down {
+  background-position: 0% 0%;
+  animation-name: down;
+}
+#player.up {
+  background-position: 0% -100%;
+  animation-name: up;
+}
+#player.left {
+  background-position: 0% -200%;
+  animation-name: left;
+}
+#player.right {
+  background-position: 0% -300%;
+  animation-name: right;
+}
+
+@keyframes down {
+  from {
+    background-position: 0% 0%;
+  }
+  to {
+    background-position: -400% 0%;
+  }
+}
+@keyframes up {
+  from {
+    background-position: 0% -100%;
+  }
+  to {
+    background-position: -400% -100%;
+  }
+}
+@keyframes left {
+  from {
+    background-position: 0% -200%;
+  }
+  to {
+    background-position: -400% -200%;
+  }
+}
+@keyframes right {
+  from {
+    background-position: 0% -300%;
+  }
+  to {
+    background-position: -400% -300%;
+  }
+}
+
+.highlight {
+  outline: 2px dashed yellow;
+  translate: 0 0;
+}
+
+.show-rect {
+  outline: 2px solid red;
+}
+.show-reg-point::before {
+  content: "";
+  position: absolute;
+  background-color: cyan;
+
+  width: 3px;
+  height: 3px;
+
+  translate: var(--regX) var(--regY);
+}
+
+#items {
+  grid-area: 1/1;
+  top: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--GRID_WIDTH), var(--TILE_SIZE));
+  grid-template-rows: repeat(var(--GRID_HEIGHT), var(--TILE_SIZE));
+  image-rendering: pixelated;
+  z-index: 1;
+}
+
+.item {
+  width: var(--TILE_SIZE);
+  height: var(--TILE_SIZE);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover; 
+  background-position: center;
+  translate: 0, 0;
+}
+
+.item.gold {
+  background-image: url("images/items/gold.png");
+}
+
+.item.gems {
+  background-image: url("images/items/gems.png");
+}
+.item.pot {
+  background-image: url("images/items/pot.png");
+}
+
+
+#characters {
+    grid-area: 1/1;
+    top: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--GRID_WIDTH), var(--TILE_SIZE));
+    grid-template-rows: repeat(var(--GRID_HEIGHT), var(--TILE_SIZE));
+    image-rendering: pixelated;
+    z-index: 1;
+  }
+  
+  .enemy.blob {
+    width: var(--TILE_SIZE);
+    height: var(--TILE_SIZE);
+    background-image: url("images/characters/enemies.png");
+    background-size: 1100% 400%;
+  }
+
+
+  .show-hitbox::after{
+    content:"";
+    position:absolute;
+    width: var(--hitboxW);
+    height: var(--hitboxH);
+    translate: var(--hitboxX) var(--hitboxY);
+
+    outline: 2px solid hotpink;
+  }
+  
