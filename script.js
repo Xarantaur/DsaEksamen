@@ -37,8 +37,8 @@
       this.items = new Map();
     }
 
-    addItem( { type } , quantity = 1) {
-      if (this.items.has(items)) {
+    addItem({ type }, quantity = 1) {
+      if (this.items.has(type)) {
         this.items.set(type, this.items.get(type) + quantity);
       } else {
         this.items.set(type, quantity);
@@ -58,17 +58,6 @@
         }
       } else {
         console.log(`${type} not found in inventory.`);
-      }
-    }
-
-    displayItems() {
-      if (this.items.size === 0) {
-        console.log("Inventory is empty.");
-      } else {
-        console.log("Inventory items:");
-        this.items.forEach((quantity, item) => {
-          console.log(`- ${item}: ${quantity}`);
-        });
       }
     }
   }
@@ -269,6 +258,29 @@
     }
   });
 
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "i" || event.key === "I") {
+      toggleInventoryDisplay();
+    }
+  });
+
+  function toggleInventoryDisplay() {
+    const inventoryDisplay = document.querySelector("#inventoryDisplay");
+    inventoryDisplay.style.display = (inventoryDisplay.style.display === 'none') ? 'block' : 'none';
+  }
+
+  function updateInventoryDisplay() {
+  const inventoryDisplay = document.querySelector("#inventoryDisplay");
+  inventoryDisplay.innerHTML = ""; // Clear previous contents
+
+  inventory.items.forEach((quantity, type) => {
+    const itemDiv = document.createElement("div");
+    itemDiv.className = "inventory-item";
+    itemDiv.textContent = `${type}: ${quantity}`;
+    inventoryDisplay.appendChild(itemDiv);
+  });
+}
+
   function displayItems() {
     const itemsContainer = document.querySelector("#items");
     itemsContainer.innerHTML = "";
@@ -453,6 +465,7 @@
 
     displayPlayerAtPosition();
     displayPlayerAnimation();
+    updateInventoryDisplay();
   }
 
   function start() {
