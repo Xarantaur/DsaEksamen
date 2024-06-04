@@ -47,6 +47,7 @@
     }
 
     removeItem(type, quantity = 1) {
+      console.log("hello3")
       if (this.items.has(type)) {
         const currentQuantity = this.items.get(type);
         if (currentQuantity > quantity) {
@@ -237,16 +238,41 @@
   }
 
   function pickupItems(player) {
-    // Convert player's current position to grid coordinates
     const playerPos = coordFromPos({ x: player.x, y: player.y });
-
-    items.forEach((item) => {
+  
+    for (let i = items.length - 1; i >= 0; i--) {
+      const item = items[i];
       if (playerPos.row === item.row && playerPos.col === item.col && !item.pickedUp) {
         item.pickedUp = true; // Mark the item as picked up
-        displayItems();
-        inventory.addItem(item);
+        inventory.addItem(item); // Add item to inventory
+        items.splice(i, 1); // Remove item from the items array
+        displayItems(); // Update items display
+        updateInventoryDisplay(); // Update inventory display
+        break; // Exit loop after picking up an item
       }
+    }
+  }
+
+  function dropItem(type) {
+    console.log("Drop button clicked for item:", type);
+  
+    // Remove the item from the inventory
+    inventory.removeItem(type, 1);
+  
+    // Get player's current position in grid coordinates
+    const playerPos = coordFromPos({ x: player.x, y: player.y });
+  
+    // Add the dropped item to the items array
+    items.push({
+      type: type,
+      row: playerPos.row,
+      col: playerPos.col,
+      pickedUp: false
     });
+  
+    // Update the display of items and inventory
+    displayItems();
+    updateInventoryDisplay();
   }
 
   /* ------------------------------------------view----------------------------------------- */
@@ -267,19 +293,28 @@
   function toggleInventoryDisplay() {
     const inventoryDisplay = document.querySelector("#inventoryDisplay");
     inventoryDisplay.style.display = (inventoryDisplay.style.display === 'none') ? 'block' : 'none';
+    if (inventoryDisplay.style.display === 'block') {
+      updateInventoryDisplay();
+    }
   }
 
   function updateInventoryDisplay() {
-  const inventoryDisplay = document.querySelector("#inventoryDisplay");
-  inventoryDisplay.innerHTML = ""; // Clear previous contents
-
-  inventory.items.forEach((quantity, type) => {
-    const itemDiv = document.createElement("div");
-    itemDiv.className = "inventory-item";
-    itemDiv.textContent = `${type}: ${quantity}`;
-    inventoryDisplay.appendChild(itemDiv);
-  });
-}
+    const inventoryDisplay = document.querySelector("#inventoryDisplay");
+    inventoryDisplay.innerHTML = ""; // Clear previous contents
+  
+    inventory.items.forEach((quantity, type) => {
+      const itemDiv = document.createElement("div");
+      itemDiv.className = "inventory-item";
+      itemDiv.textContent = `${type}: ${quantity}`;
+  
+      const dropButton = document.createElement("button");
+      dropButton.textContent = "Drop";
+      dropButton.addEventListener("click", () => dropItem(type));
+  
+      itemDiv.appendChild(dropButton);
+      inventoryDisplay.appendChild(itemDiv);
+    });
+  }
 
   function displayItems() {
     const itemsContainer = document.querySelector("#items");
@@ -287,7 +322,7 @@
     itemsContainer.style.setProperty("--GRID_WIDTH", GRID_WIDTH);
     itemsContainer.style.setProperty("--GRID_HEIGHT", GRID_HEIGHT);
     itemsContainer.style.setProperty("--TILE_SIZE", TILE_SIZE + "px");
-
+  
     items.forEach((item) => {
       if (!item.pickedUp) {
         const itemDiv = document.createElement("div");
@@ -465,7 +500,6 @@
 
     displayPlayerAtPosition();
     displayPlayerAnimation();
-    updateInventoryDisplay();
   }
 
   function start() {

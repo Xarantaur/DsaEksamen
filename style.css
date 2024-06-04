@@ -196,27 +196,36 @@
 
   #inventoryDisplay {
     position: absolute;
-    top: 10px;             /* Adjust to align with the top of the gamefield if necessary */
-    right: 10px;           /* Positions the inventory on the right side */
-    width: 300px;          /* Set a fixed width, or adjust as necessary */
-    height: auto;          /* Adjust height based on content */
+    top: 10px;
+    right: 10px;
+    width: 300px;
     background: rgba(0, 0, 0, 0.8);
     color: white;
     padding: 10px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);  /* Adjust number of columns if needed */
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
     gap: 5px;
     border: 1px solid #fff;
     z-index: 2;
-    overflow-y: auto;      /* Adds scroll bar if items exceed the display area */
+    overflow-y: auto;
   }
-  
   
   .inventory-item {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     border: 1px solid #ddd;
+    padding: 5px;
   }
   
+  .inventory-item button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
   
+  .inventory-item button:hover {
+    background-color: darkred;
+  }
