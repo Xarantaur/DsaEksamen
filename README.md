@@ -24,4 +24,6 @@ Dette projekt er et interaktivt spil, hvor du kan bevæge dig rundt på en kort 
 •	Fjender: Der er fjender på kortet, som langsomt følger efter dig. Du skal undgå dem for ikke at blive fanget.
 Spillet er et sjovt lille eksperiment, for at se en path blive fundet af enemies til at følge efter dig, samt at kunne løbe rundt I en lille interaktiv verden
 
+github actions: https://xarantaur.github.io/DsaEksamen/
+
 
