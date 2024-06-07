@@ -269,6 +269,83 @@ function dropItem(type) {
   updateInventoryDisplay();
 }
 
+// A* Pathfinding Algorithm and Helper Functions
+
+class Node {
+  constructor(position, g, h, parent = null) {
+    this.position = position; // {row, col}
+    this.g = g; // Cost from start to current node
+    this.h = h; // Heuristic cost from current node to goal
+    this.f = g + h; // Total cost
+    this.parent = parent; // Reference to the parent node
+  }
+}
+
+function heuristic(a, b) {
+  return Math.abs(a.row - b.row) + Math.abs(a.col - b.col);
+}
+
+function getNeighbors({ row, col }) {
+  const neighbors = [];
+
+  if (row > 0) neighbors.push({ row: row - 1, col }); // Up
+  if (row < GRID_HEIGHT - 1) neighbors.push({ row: row + 1, col }); // Down
+  if (col > 0) neighbors.push({ row, col: col - 1 }); // Left
+  if (col < GRID_WIDTH - 1) neighbors.push({ row, col: col + 1 }); // Right
+
+  return neighbors;
+}
+
+function findPath(start, goal) {
+  const openSet = [];
+  const closedSet = new Set();
+  const startNode = new Node(start, 0, heuristic(start, goal));
+  openSet.push(startNode);
+
+  while (openSet.length > 0) {
+    let current = openSet.reduce((lowest, node) => (node.f < lowest.f ? node : lowest));
+
+    if (current.position.row === goal.row && current.position.col === goal.col) {
+      const path = [];
+      while (current) {
+        path.push(current.position);
+        current = current.parent;
+      }
+      return path.reverse();
+    }
+
+    openSet.splice(openSet.indexOf(current), 1);
+    closedSet.add(`${current.position.row},${current.position.col}`);
+
+    getNeighbors(current.position).forEach((neighbor) => {
+      const neighborKey = `${neighbor.row},${neighbor.col}`;
+
+      if (!canMoveTo(neighbor) || closedSet.has(neighborKey)) return;
+
+      const tentativeG = current.g + 1;
+
+      let neighborNode = openSet.find((node) => node.position.row === neighbor.row && node.position.col === neighbor.col);
+
+      if (!neighborNode) {
+        neighborNode = new Node(neighbor, tentativeG, heuristic(neighbor, goal), current);
+        openSet.push(neighborNode);
+      } else if (tentativeG < neighborNode.g) {
+        neighborNode.g = tentativeG;
+        neighborNode.f = neighborNode.g + neighborNode.h;
+        neighborNode.parent = current;
+      }
+    });
+  }
+
+  return [];
+}
+
+// Example usage:
+const enemyPosition = { row: 3, col: 8 };
+const playerPosition = coordFromPos({ x: player.x, y: player.y });
+
+const path = findPath(enemyPosition, playerPosition);
+console.log(path);
 /* ------------------------------------------view----------------------------------------- */
 
 document.addEventListener("keydown", function (event) {
@@ -503,80 +580,4 @@ function start() {
   requestAnimationFrame(tick);
 }
 
-// A* Pathfinding Algorithm and Helper Functions
 
-class Node {
-  constructor(position, g, h, parent = null) {
-    this.position = position; // {row, col}
-    this.g = g; // Cost from start to current node
-    this.h = h; // Heuristic cost from current node to goal
-    this.f = g + h; // Total cost
-    this.parent = parent; // Reference to the parent node
-  }
-}
-
-function heuristic(a, b) {
-  return Math.abs(a.row - b.row) + Math.abs(a.col - b.col);
-}
-
-function getNeighbors({ row, col }) {
-  const neighbors = [];
-
-  if (row > 0) neighbors.push({ row: row - 1, col }); // Up
-  if (row < GRID_HEIGHT - 1) neighbors.push({ row: row + 1, col }); // Down
-  if (col > 0) neighbors.push({ row, col: col - 1 }); // Left
-  if (col < GRID_WIDTH - 1) neighbors.push({ row, col: col + 1 }); // Right
-
-  return neighbors;
-}
-
-function findPath(start, goal) {
-  const openSet = [];
-  const closedSet = new Set();
-  const startNode = new Node(start, 0, heuristic(start, goal));
-  openSet.push(startNode);
-
-  while (openSet.length > 0) {
-    let current = openSet.reduce((lowest, node) => (node.f < lowest.f ? node : lowest));
-
-    if (current.position.row === goal.row && current.position.col === goal.col) {
-      const path = [];
-      while (current) {
-        path.push(current.position);
-        current = current.parent;
-      }
-      return path.reverse();
-    }
-
-    openSet.splice(openSet.indexOf(current), 1);
-    closedSet.add(`${current.position.row},${current.position.col}`);
-
-    getNeighbors(current.position).forEach((neighbor) => {
-      const neighborKey = `${neighbor.row},${neighbor.col}`;
-
-      if (!canMoveTo(neighbor) || closedSet.has(neighborKey)) return;
-
-      const tentativeG = current.g + 1;
-
-      let neighborNode = openSet.find((node) => node.position.row === neighbor.row && node.position.col === neighbor.col);
-
-      if (!neighborNode) {
-        neighborNode = new Node(neighbor, tentativeG, heuristic(neighbor, goal), current);
-        openSet.push(neighborNode);
-      } else if (tentativeG < neighborNode.g) {
-        neighborNode.g = tentativeG;
-        neighborNode.f = neighborNode.g + neighborNode.h;
-        neighborNode.parent = current;
-      }
-    });
-  }
-
-  return [];
-}
-
-// Example usage:
-const enemyPosition = { row: 3, col: 8 };
-const playerPosition = coordFromPos({ x: player.x, y: player.y });
-
-const path = findPath(enemyPosition, playerPosition);
-console.log(path);
