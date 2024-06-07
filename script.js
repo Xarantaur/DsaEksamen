@@ -26,7 +26,7 @@ const controls = {
   down: false,
 };
 
-const enemies = [{ type: "blob", row: 3, col: 8 }];
+const enemies = [{ type: "blob", row: 4, col: 8, path: [] }];
 
 class Inventory {
   constructor() {
@@ -231,6 +231,22 @@ function movePlayer(deltaTime) {
   }
 }
 
+function moveEnemies(deltaTime) {
+  enemies.forEach(enemy => {
+    if (enemy.path.length > 0) {
+      const nextStep = enemy.path.shift();
+      const { x, y } = posFromCoord(nextStep);
+      enemy.row = nextStep.row;
+      enemy.col = nextStep.col;
+      enemy.x = x;
+      enemy.y = y;
+    } else {
+      const playerPosition = coordFromPos({ x: player.x, y: player.y });
+      enemy.path = findPath({ row: enemy.row, col: enemy.col }, playerPosition);
+    }
+  });
+}
+
 function pickupItems(player) {
   const playerPos = coordFromPos({ x: player.x, y: player.y });
 
@@ -311,6 +327,7 @@ function findPath(start, goal) {
         path.push(current.position);
         current = current.parent;
       }
+      console.log(path)
       return path.reverse();
     }
 
@@ -336,16 +353,10 @@ function findPath(start, goal) {
       }
     });
   }
-
   return [];
 }
 
-// Example usage:
-const enemyPosition = { row: 3, col: 8 };
-const playerPosition = coordFromPos({ x: player.x, y: player.y });
 
-const path = findPath(enemyPosition, playerPosition);
-console.log(path);
 /* ------------------------------------------view----------------------------------------- */
 
 document.addEventListener("keydown", function (event) {
@@ -558,8 +569,13 @@ function tick(timestamp) {
 
   const deltaTime = (timestamp - lastTimestamp) / 1000;
   lastTimestamp = timestamp;
-
+  const enemyPosition = { row: enemies[0].row, col: enemies[0].col };
+ const playerPosition = coordFromPos({ x: player.x, y: player.y });
+   
   movePlayer(deltaTime);
+  moveEnemies(deltaTime)
+  findPath(enemyPosition, playerPosition)
+  
 
   showDebugging();
 
