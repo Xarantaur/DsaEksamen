@@ -417,7 +417,12 @@ function displayItems() {
 }
 
 function displayEnemies() {
-  const enemyContainer = document.querySelector("#characters");
+  const enemyContainer = document.querySelector("#enemies");
+  enemyContainer.innerHTML = "";
+  const charactersContainer = document.querySelector("#characters");
+  charactersContainer.style.setProperty("--GRID_WIDTH", GRID_WIDTH);
+  charactersContainer.style.setProperty("--GRID_HEIGHT", GRID_HEIGHT);
+  charactersContainer.style.setProperty("--TILE_SIZE", TILE_SIZE + "px");
   enemyContainer.style.setProperty("--GRID_WIDTH", GRID_WIDTH);
   enemyContainer.style.setProperty("--GRID_HEIGHT", GRID_HEIGHT);
   enemyContainer.style.setProperty("--TILE_SIZE", TILE_SIZE + "px");
@@ -575,6 +580,7 @@ function tick(timestamp) {
   movePlayer(deltaTime);
   moveEnemies(deltaTime)
   findPath(enemyPosition, playerPosition)
+  displayEnemies();
   
 
   showDebugging();
@@ -588,7 +594,6 @@ function start() {
   createTiles();
   dislayTiles();
   displayItems();
-  displayEnemies();
 
   document.addEventListener("keydown", keyDown);
   document.addEventListener("keyup", keyUp);

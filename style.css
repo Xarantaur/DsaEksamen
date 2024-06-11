@@ -175,13 +175,6 @@
     image-rendering: pixelated;
     z-index: 1;
   }
-  
-  .enemy.blob {
-    width: var(--TILE_SIZE);
-    height: var(--TILE_SIZE);
-    background-image: url("images/characters/enemies.png");
-    background-size: 1100% 400%;
-  }
 
 
   .show-hitbox::after{
@@ -229,3 +222,23 @@
   .inventory-item button:hover {
     background-color: darkred;
   }
+
+  #enemies {
+    grid-area: 1/1;
+    top: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--GRID_WIDTH), var(--TILE_SIZE));
+    grid-template-rows: repeat(var(--GRID_HEIGHT), var(--TILE_SIZE));
+    image-rendering: pixelated;
+    z-index: 1;
+  }
+
+  .enemy.blob {
+    width: var(--TILE_SIZE);
+    height: var(--TILE_SIZE);
+    background-image: url("images/characters/enemies.png");
+    background-size: 1100% 400%;
+  }
+  
+  
