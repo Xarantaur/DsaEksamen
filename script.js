@@ -231,20 +231,31 @@ function movePlayer(deltaTime) {
   }
 }
 
+let enemyMoveCooldown = 0;
+const enemyMoveInterval = 0.5; // seconds
+
 function moveEnemies(deltaTime) {
-  enemies.forEach(enemy => {
-    if (enemy.path.length > 0) {
-      const nextStep = enemy.path.shift();
-      const { x, y } = posFromCoord(nextStep);
-      enemy.row = nextStep.row;
-      enemy.col = nextStep.col;
-      enemy.x = x;
-      enemy.y = y;
-    } else {
-      const playerPosition = coordFromPos({ x: player.x, y: player.y });
-      enemy.path = findPath({ row: enemy.row, col: enemy.col }, playerPosition);
+    enemyMoveCooldown -= deltaTime;
+
+    if (enemyMoveCooldown <= 0) {
+        enemyMoveCooldown = enemyMoveInterval;
+
+        enemies.forEach(enemy => {
+            if (enemy.path.length > 0) {
+                const nextStep = enemy.path.shift();
+                const { x, y } = posFromCoord(nextStep);
+                enemy.row = nextStep.row;
+                enemy.col = nextStep.col;
+                enemy.x = x;
+                enemy.y = y;
+            } else {
+                const playerPosition = coordFromPos({ x: player.x, y: player.y });
+                enemy.path = findPath({ row: enemy.row, col: enemy.col }, playerPosition);
+            }
+        });
+
+        displayEnemies();
     }
-  });
 }
 
 function pickupItems(player) {
@@ -578,9 +589,7 @@ function tick(timestamp) {
  const playerPosition = coordFromPos({ x: player.x, y: player.y });
    
   movePlayer(deltaTime);
-  moveEnemies(deltaTime)
-  findPath(enemyPosition, playerPosition)
-  displayEnemies();
+  moveEnemies(deltaTime);
   
 
   showDebugging();
