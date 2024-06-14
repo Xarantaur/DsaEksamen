@@ -18,6 +18,8 @@ const player = {
   speed: 100,
   move: false,
   direction: undefined,
+  health: 3,
+  lastHitTime: 0,
 };
 const controls = {
   left: false,
@@ -296,6 +298,47 @@ function dropItem(type) {
   updateInventoryDisplay();
 }
 
+const HIT_COOLDOWN = 2000;
+
+//Checks if the enemy tile and player tile are the same
+function checkCollision() {
+  const currentTime = Date.now();
+  const playerPos = coordFromPos({ x: player.x, y: player.y });
+
+  enemies.forEach(enemy => {
+    const enemyPos = { row: enemy.row, col: enemy.col };
+
+    if (playerPos.row === enemyPos.row && playerPos.col === enemyPos.col) {
+      if (currentTime - player.lastHitTime >= HIT_COOLDOWN) {
+        player.health -= 1;
+        player.lastHitTime = currentTime;
+        updateHealthDisplay();
+
+        if (player.health <= 0) {
+          showGameOverPopup();
+        }
+      }
+    }
+  });
+}
+
+function restartGame() {
+  player.health = 3;
+  player.x = 240;
+  player.y = 230;
+
+  enemies.forEach(enemy => {
+    enemy.row = 4;
+    enemy.col = 8;
+    enemy.path = [];
+  });
+
+  document.getElementById("gameOverPopup").remove();
+  displayPlayerAtPosition();
+  displayEnemies();
+  updateHealthDisplay();
+}
+
 // A* Pathfinding Algorithm and Helper Functions
 
 class Node {
@@ -382,6 +425,31 @@ document.addEventListener("keydown", function (event) {
     toggleInventoryDisplay();
   }
 });
+
+function showGameOverPopup() {
+  //Hvis popup vinduet allerede er der
+  if (document.getElementById("gameOverPopup")) {
+    return; // Gå ud af funktionen
+  }
+  const popup = document.createElement("div");
+  popup.id = "gameOverPopup";
+  popup.innerHTML = `
+    <div class="popup-content">
+      <h2>Game Over</h2>
+      <p>You have lost all your health. Do you want to restart?</p>
+      <button id="restartButton">Restart</button>
+    </div>
+  `;
+
+  document.body.appendChild(popup);
+
+  document.getElementById("restartButton").addEventListener("click", restartGame);
+}
+
+function updateHealthDisplay() {
+  const healthDisplay = document.getElementById("healthDisplay");
+  healthDisplay.textContent = `Health: ${player.health}`;
+}
 
 function toggleInventoryDisplay() {
   const inventoryDisplay = document.querySelector("#inventoryDisplay");
@@ -585,11 +653,10 @@ function tick(timestamp) {
 
   const deltaTime = (timestamp - lastTimestamp) / 1000;
   lastTimestamp = timestamp;
-  const enemyPosition = { row: enemies[0].row, col: enemies[0].col };
- const playerPosition = coordFromPos({ x: player.x, y: player.y });
    
   movePlayer(deltaTime);
   moveEnemies(deltaTime);
+  checkCollision();
   
 
   showDebugging();
