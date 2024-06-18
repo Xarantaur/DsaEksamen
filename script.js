@@ -341,73 +341,85 @@ function restartGame() {
 
 // A* Pathfinding Algorithm and Helper Functions
 
+
 class Node {
   constructor(position, g, h, parent = null) {
-    this.position = position; // {row, col}
-    this.g = g; // Cost from start to current node
-    this.h = h; // Heuristic cost from current node to goal
-    this.f = g + h; // Total cost
-    this.parent = parent; // Reference to the parent node
+    this.position = position; // {row, col} - Positionen af noden i grid'en
+    this.g = g; // Omkostning fra start til den aktuelle node
+    this.h = h; // Heuristisk omkostning fra den aktuelle node til målet
+    this.f = g + h; // Total omkostning (g + h)
+    this.parent = parent; // Reference til forældrenoden
   }
 }
 
+// Heuristisk funktion der beregner den Manhattan distance mellem to punkter
 function heuristic(a, b) {
   return Math.abs(a.row - b.row) + Math.abs(a.col - b.col);
 }
 
+// Funktion der finder naboer til en given position i grid'en
 function getNeighbors({ row, col }) {
   const neighbors = [];
 
-  if (row > 0) neighbors.push({ row: row - 1, col }); // Up
-  if (row < GRID_HEIGHT - 1) neighbors.push({ row: row + 1, col }); // Down
-  if (col > 0) neighbors.push({ row, col: col - 1 }); // Left
-  if (col < GRID_WIDTH - 1) neighbors.push({ row, col: col + 1 }); // Right
+  if (row > 0) neighbors.push({ row: row - 1, col }); // Op
+  if (row < GRID_HEIGHT - 1) neighbors.push({ row: row + 1, col }); // Ned
+  if (col > 0) neighbors.push({ row, col: col - 1 }); // Venstre
+  if (col < GRID_WIDTH - 1) neighbors.push({ row, col: col + 1 }); // Højre
 
   return neighbors;
 }
 
+// Funktion der finder vejen fra start til mål ved hjælp af A* algoritmen
 function findPath(start, goal) {
-  const openSet = [];
-  const closedSet = new Set();
-  const startNode = new Node(start, 0, heuristic(start, goal));
-  openSet.push(startNode);
+  const openSet = []; // Liste over noder der skal vurderes
+  const closedSet = new Set(); // Sæt af noder der allerede er vurderet
+  const startNode = new Node(start, 0, heuristic(start, goal)); // Startnoden
+  openSet.push(startNode); // Tilføj startnoden til openSet
 
   while (openSet.length > 0) {
+    // Find noden i openSet med den laveste f værdi
     let current = openSet.reduce((lowest, node) => (node.f < lowest.f ? node : lowest));
 
+    // Hvis den aktuelle node er målet, konstruer og returner vejen
     if (current.position.row === goal.row && current.position.col === goal.col) {
       const path = [];
       while (current) {
         path.push(current.position);
         current = current.parent;
       }
-      console.log(path)
-      return path.reverse();
+      console.log(path);
+      return path.reverse(); // Returner den omvendte sti (fra start til mål)
     }
 
+    // Fjern den aktuelle node fra openSet og tilføj den til closedSet
     openSet.splice(openSet.indexOf(current), 1);
     closedSet.add(`${current.position.row},${current.position.col}`);
 
+    // For hver nabo til den aktuelle node
     getNeighbors(current.position).forEach((neighbor) => {
       const neighborKey = `${neighbor.row},${neighbor.col}`;
 
+      // Hvis vi ikke kan bevæge os til naboen eller den allerede er vurderet, gå videre
       if (!canMoveTo(neighbor) || closedSet.has(neighborKey)) return;
 
-      const tentativeG = current.g + 1;
+      const tentativeG = current.g + 1; // Beregn g værdien for naboen
 
+      // Find naboen i openSet
       let neighborNode = openSet.find((node) => node.position.row === neighbor.row && node.position.col === neighbor.col);
 
       if (!neighborNode) {
+        // Hvis naboen ikke er i openSet, tilføj den
         neighborNode = new Node(neighbor, tentativeG, heuristic(neighbor, goal), current);
         openSet.push(neighborNode);
       } else if (tentativeG < neighborNode.g) {
+        // Hvis vi har fundet en bedre vej til naboen, opdater dens g og f værdier og sæt dens forælder
         neighborNode.g = tentativeG;
         neighborNode.f = neighborNode.g + neighborNode.h;
         neighborNode.parent = current;
       }
     });
   }
-  return [];
+  return []; // Returner en tom liste hvis ingen vej blev fundet
 }
 
 
